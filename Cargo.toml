@@ -7,5 +7,5 @@ description = "XRPL Hooks API"
 license = "MIT"
 repository = "https://github.com/otov4its/xrpl-hooks/"
 readme = "README.md"
-keywords = ["ripple", "xrp", "xrpl", "hook", "hooks", "cryptocurrencies"]
+keywords = ["xrp", "xrpl", "hook", "hooks", "cryptocurrencies"]
 categories = ["wasm", "no-std", "cryptography::cryptocurrencies"]
