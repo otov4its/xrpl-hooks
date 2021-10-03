@@ -1,9 +1,6 @@
 use crate::_c;
 use crate::error::Result::{self, Err, Ok};
-use crate::helpers::{
-    FieldId,
-    DataRepr,
-};
+use crate::helpers::{DataRepr, FieldId};
 
 #[inline(always)]
 pub fn _g(id: u32, maxiter: u32) {
@@ -45,7 +42,7 @@ pub fn util_verify(payload: &[u8], signature: &[u8], publickey: &[u8]) -> bool {
     match res {
         Ok(0) => false,
         Ok(1) => true,
-        _ => false
+        _ => false,
     }
 }
 
@@ -62,38 +59,35 @@ fn _util_keylet() -> ! {
 
 #[inline(always)]
 pub fn sto_subfield(sto: &[u8], field_id: FieldId) -> Result<&[u8]> {
-    let res = unsafe {
-        _c::sto_subfield(sto.as_ptr() as u32, sto.len() as u32, field_id as _)
-    };
+    let res = unsafe { _c::sto_subfield(sto.as_ptr() as u32, sto.len() as u32, field_id as _) };
 
     let location = match res {
         res if res >= 0 => res,
-        res => return Err(res)
+        res => return Err(res),
     };
 
-    Ok(
-        &sto[range_from_location(location)]
-    )
+    Ok(&sto[range_from_location(location)])
 }
 
 #[inline(always)]
 pub fn sto_subarray(sto: &[u8], array_id: u32) -> Result<&[u8]> {
-    let res = unsafe {
-        _c::sto_subarray(sto.as_ptr() as u32, sto.len() as u32, array_id)
-    };
+    let res = unsafe { _c::sto_subarray(sto.as_ptr() as u32, sto.len() as u32, array_id) };
 
     let location = match res {
         res if res >= 0 => res,
-        res => return Err(res)
+        res => return Err(res),
     };
 
-    Ok(
-        &sto[range_from_location(location)]
-    )
+    Ok(&sto[range_from_location(location)])
 }
 
 #[inline(always)]
-pub fn sto_emplace(sto_out: &mut [u8], sto_src: &[u8], field: &[u8], field_id: FieldId) -> Result<u64> {
+pub fn sto_emplace(
+    sto_out: &mut [u8],
+    sto_src: &[u8],
+    field: &[u8],
+    field_id: FieldId,
+) -> Result<u64> {
     let res = unsafe {
         _c::sto_emplace(
             sto_out.as_mut_ptr() as u32,
@@ -102,7 +96,7 @@ pub fn sto_emplace(sto_out: &mut [u8], sto_src: &[u8], field: &[u8], field_id: F
             sto_src.len() as u32,
             field.as_ptr() as u32,
             field.len() as u32,
-            field_id as _
+            field_id as _,
         )
     };
 
@@ -117,7 +111,7 @@ pub fn sto_erase(sto_out: &mut [u8], sto_src: &[u8], field_id: FieldId) -> Resul
             sto_out.len() as u32,
             sto_src.as_ptr() as u32,
             sto_src.len() as u32,
-            field_id as _
+            field_id as _,
         )
     };
 
@@ -131,7 +125,7 @@ pub fn sto_validate(sto: &[u8]) -> bool {
     match res {
         Ok(0) => false,
         Ok(1) => true,
-        _ => false
+        _ => false,
     }
 }
 
@@ -222,7 +216,7 @@ pub fn state_foreign(data: &mut [u8], key: &[u8], accid: &[u8]) -> Result<u64> {
             key.as_ptr() as u32,
             key.len() as u32,
             accid.as_ptr() as u32,
-            accid.len() as u32
+            accid.len() as u32,
         )
     };
 
@@ -232,7 +226,13 @@ pub fn state_foreign(data: &mut [u8], key: &[u8], accid: &[u8]) -> Result<u64> {
 #[inline(always)]
 pub fn trace(msg: &[u8], data: &[u8], data_repr: DataRepr) -> Result<u64> {
     let res = unsafe {
-        _c::trace(msg.as_ptr() as u32, msg.len() as u32, data.as_ptr() as u32, data.len() as u32, data_repr as _)
+        _c::trace(
+            msg.as_ptr() as u32,
+            msg.len() as u32,
+            data.as_ptr() as u32,
+            data.len() as u32,
+            data_repr as _,
+        )
     };
 
     result(res)
@@ -240,27 +240,21 @@ pub fn trace(msg: &[u8], data: &[u8], data_repr: DataRepr) -> Result<u64> {
 
 #[inline(always)]
 pub fn trace_num(msg: &[u8], number: i64) -> Result<u64> {
-    let res = unsafe {
-        _c::trace_num(msg.as_ptr() as u32, msg.len() as u32, number)
-    };
+    let res = unsafe { _c::trace_num(msg.as_ptr() as u32, msg.len() as u32, number) };
 
     result(res)
 }
 
 #[inline(always)]
 pub fn trace_slot(msg: &[u8], slot: u32) -> Result<u64> {
-    let res = unsafe {
-        _c::trace_slot(msg.as_ptr() as u32, msg.len() as u32, slot)
-    };
+    let res = unsafe { _c::trace_slot(msg.as_ptr() as u32, msg.len() as u32, slot) };
 
     result(res)
 }
 
 #[inline(always)]
 pub fn trace_float(msg: &[u8], float: i64) -> Result<u64> {
-    let res = unsafe {
-        _c::trace_float(msg.as_ptr() as u32, msg.len() as u32, float)
-    };
+    let res = unsafe { _c::trace_float(msg.as_ptr() as u32, msg.len() as u32, float) };
 
     result(res)
 }
@@ -337,19 +331,12 @@ fn buf_read(buf: &[u8], fun: BufReader) -> Result<u64> {
 
 #[inline(always)]
 fn buf_2read(buf_1: &[u8], buf_2: &[u8], fun: Buf2Reader) -> Result<u64> {
-    let res = unsafe { fun(buf_1.as_ptr() as u32, buf_1.len() as u32, buf_2.as_ptr() as u32, buf_2.len() as u32) };
-
-    result(res)
-}
-
-#[inline(always)]
-fn buf_write_read(buf_write: &mut [u8], buf_read: &[u8], fun: BufWriterReader) -> Result<u64> {
-    let res = unsafe { 
+    let res = unsafe {
         fun(
-            buf_write.as_mut_ptr() as u32,
-            buf_write.len() as u32,
-            buf_read.as_ptr() as u32,
-            buf_read.len() as u32
+            buf_1.as_ptr() as u32,
+            buf_1.len() as u32,
+            buf_2.as_ptr() as u32,
+            buf_2.len() as u32,
         )
     };
 
@@ -357,8 +344,27 @@ fn buf_write_read(buf_write: &mut [u8], buf_read: &[u8], fun: BufWriterReader) -
 }
 
 #[inline(always)]
-fn buf_3_read(buf_read_1: &[u8], buf_read_2: &[u8], buf_read_3: &[u8], fun: Buf3Reader) -> Result<u64> {
-    let res = unsafe { 
+fn buf_write_read(buf_write: &mut [u8], buf_read: &[u8], fun: BufWriterReader) -> Result<u64> {
+    let res = unsafe {
+        fun(
+            buf_write.as_mut_ptr() as u32,
+            buf_write.len() as u32,
+            buf_read.as_ptr() as u32,
+            buf_read.len() as u32,
+        )
+    };
+
+    result(res)
+}
+
+#[inline(always)]
+fn buf_3_read(
+    buf_read_1: &[u8],
+    buf_read_2: &[u8],
+    buf_read_3: &[u8],
+    fun: Buf3Reader,
+) -> Result<u64> {
+    let res = unsafe {
         fun(
             buf_read_1.as_ptr() as u32,
             buf_read_1.len() as u32,
@@ -376,7 +382,7 @@ fn buf_3_read(buf_read_1: &[u8], buf_read_2: &[u8], buf_read_3: &[u8], fun: Buf3
 fn result(res: i64) -> Result<u64> {
     match res {
         res if res >= 0 => Ok(res as _),
-        _ => Err(res)
+        _ => Err(res),
     }
 }
 
@@ -385,5 +391,8 @@ fn range_from_location(location: i64) -> core::ops::Range<usize> {
     let offset: i32 = (location >> 32) as _;
     let lenght: i32 = (location & 0xFFFFFFFF) as _;
 
-    core::ops::Range {start: offset as _, end: (offset + lenght) as _}
+    core::ops::Range {
+        start: offset as _,
+        end: (offset + lenght) as _,
+    }
 }

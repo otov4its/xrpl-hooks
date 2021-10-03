@@ -1,11 +1,11 @@
 use crate::api::rollback;
 
-/// Simple version of Result type 
+/// Simple version of Result type
 /// to comply XRPL Hooks Webassembly restrictions
 #[must_use]
 pub enum Result<T> {
     Ok(T),
-    Err(i64)
+    Err(i64),
 }
 
 pub use self::Result::*;
@@ -16,7 +16,7 @@ impl<T> Result<T> {
     pub fn expect(self, msg: &[u8]) -> T {
         match self {
             Err(e) => rollback(msg, e),
-            Ok(val) => val
+            Ok(val) => val,
         }
     }
 
@@ -24,7 +24,7 @@ impl<T> Result<T> {
     pub fn unwrap(self) -> T {
         match self {
             Err(e) => rollback(b"error", e),
-            Ok(val) => val
+            Ok(val) => val,
         }
     }
 

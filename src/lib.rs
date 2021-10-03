@@ -2,10 +2,9 @@
 //!
 //! # Examples
 //!
-//! See https://github.com/otov4its/xrpl-hook-template/
+//! See <https://github.com/otov4its/xrpl-hook-template/>
 
 #![no_std]
-
 #![deny(
     warnings,
     clippy::all,
@@ -16,11 +15,10 @@
     non_ascii_idents,
     unreachable_pub
 )]
-
 #![doc(test(attr(deny(warnings))))]
 #![doc(html_root_url = "https://docs.rs/xrpl-hooks/0.1.0")]
 
-/// # Low-level unsafe C bindings 
+/// # Low-level unsafe C bindings
 ///
 /// Use very carefully if at all necessary.
 pub mod _c;
@@ -38,12 +36,7 @@ pub mod helpers;
 pub mod macros;
 
 // Prelude
-pub use {
-    error::*,
-    api::*,
-    helpers::*,
-    macros::*,
-};
+pub use {api::*, error::*, helpers::*, macros::*};
 
 #[cfg(not(test))]
 use core::panic::PanicInfo;
@@ -52,5 +45,5 @@ use core::panic::PanicInfo;
 #[inline(always)]
 #[panic_handler]
 fn panic(_: &PanicInfo<'_>) -> ! {
-    loop { }
+    loop {}
 }

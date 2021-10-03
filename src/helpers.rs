@@ -27,7 +27,6 @@ pub type Amount = Buffer<AMOUNT_LEN>;
 pub type TxnPaymentSimple = Buffer<PREPARE_PAYMENT_SIMPLE_SIZE>;
 pub type EmitDetails = Buffer<EMIT_DETAILS_SIZE>;
 
-
 #[derive(Clone, Copy)]
 pub enum TxnType {
     Payment = _c::ttPAYMENT as isize,
@@ -265,16 +264,19 @@ pub enum DataRepr {
 #[inline(always)]
 pub fn is_buffer_equal<const GUARD_ID: u32>(buf_1: &[u8], buf_2: &[u8]) -> bool {
     let buf1_len = buf_1.len();
-    
-    if buf1_len != buf_2.len() { 
-        return false 
+
+    if buf1_len != buf_2.len() {
+        return false;
     };
 
     // guarded loop
     let mut i = 0;
-    while { _g(GUARD_ID, buf1_len as u32); i < buf1_len } {
+    while {
+        _g(GUARD_ID, buf1_len as u32);
+        i < buf1_len
+    } {
         if buf_1[i] != buf_2[i] {
-            return false
+            return false;
         }
         i += 1;
     }
@@ -287,34 +289,44 @@ pub fn buffer_zeroize<const GUARD_ID: u32>(buf: &mut [u8]) {
     let buf_len = buf.len();
     // guarded loop
     let mut i = 0;
-    while { _g(GUARD_ID, buf_len as _); i < buf_len } {
+    while {
+        _g(GUARD_ID, buf_len as _);
+        i < buf_len
+    } {
         buf[0] = 0;
         i += 1;
     }
 }
 
 #[inline(always)]
-pub fn is_txn_outgoing<const GUARD_ID: u32>(hook_acc_id: &mut AccountId, otnx_acc_id: &mut AccountId) -> Result<bool> {
+pub fn is_txn_outgoing<const GUARD_ID: u32>(
+    hook_acc_id: &mut AccountId,
+    otnx_acc_id: &mut AccountId,
+) -> Result<bool> {
     match hook_account(hook_acc_id) {
         Err(e) => return Err(e),
-        Ok(_) => {},
+        Ok(_) => {}
     }
 
     match otxn_field(otnx_acc_id, FieldId::Account) {
         Err(e) => return Err(e),
-        Ok(_) => {},
+        Ok(_) => {}
     }
 
-    Ok(
-        is_buffer_equal::<GUARD_ID>(&hook_acc_id[..], &otnx_acc_id[..])
-    )
+    Ok(is_buffer_equal::<GUARD_ID>(
+        &hook_acc_id[..],
+        &otnx_acc_id[..],
+    ))
 }
 
 #[inline(always)]
-pub fn is_txn_ingoing<const GUARD_ID: u32>(hook_acc_id: &mut AccountId, otnx_acc_id: &mut AccountId) -> Result<bool> {
+pub fn is_txn_ingoing<const GUARD_ID: u32>(
+    hook_acc_id: &mut AccountId,
+    otnx_acc_id: &mut AccountId,
+) -> Result<bool> {
     match is_txn_outgoing::<GUARD_ID>(hook_acc_id, otnx_acc_id) {
         Err(e) => Err(e),
-        Ok(res) => { Ok(!res) }
+        Ok(res) => Ok(!res),
     }
 }
 
@@ -336,26 +348,35 @@ pub const fn amount_to_drops(amount_buf: &Amount) -> Result<u64> {
 
 #[inline(always)]
 pub fn prepare_payment_simple(
-    buf_out: &mut TxnPaymentSimple, 
-    drops_amount: u64, 
+    buf_out: &mut TxnPaymentSimple,
+    drops_amount: u64,
     drops_fee: u64,
     to_address: &AccountId,
     dest_tag: u32,
     src_tag: u32,
 ) -> Result<()> {
-    const TT_RANGE: Range<usize> = Range{start: 0, end: 3};
-    const FLAGS_RANGE: Range<usize> = Range{start: 3, end: 8};
-    const TAG_SRC_RANGE: Range<usize> = Range{start: 8, end: 13};
-    const SEQUENCE_RANGE: Range<usize> = Range{start: 13, end: 18};
-    const TAG_DST_RANGE: Range<usize> = Range{start: 18, end: 23};
-    const FLS_RANGE: Range<usize> = Range{start: 23, end: 29};
-    const LLS_RANGE: Range<usize> = Range{start: 29, end: 35};
-    const DROPS_RANGE: Range<usize> = Range{start: 35, end: 44};
-    const DROPS_FEE_RANGE: Range<usize> = Range{start: 44, end: 53};
-    const SIGNING_PUBKEY_RANGE: Range<usize> = Range{start: 53, end: 88};
-    const ACCOUNT_SRC_RANGE: Range<usize> = Range{start: 88, end: 110};
-    const ACCOUNT_DST_RANGE: Range<usize> = Range{start: 110, end: 132};
-    const ETXN_DETAILS_RANGE: Range<usize> = Range{start: 132, end: 237};
+    const TT_RANGE: Range<usize> = Range { start: 0, end: 3 };
+    const FLAGS_RANGE: Range<usize> = Range { start: 3, end: 8 };
+    const TAG_SRC_RANGE: Range<usize> = Range { start: 8, end: 13 };
+    const SEQUENCE_RANGE: Range<usize> = Range { start: 13, end: 18 };
+    const TAG_DST_RANGE: Range<usize> = Range { start: 18, end: 23 };
+    const FLS_RANGE: Range<usize> = Range { start: 23, end: 29 };
+    const LLS_RANGE: Range<usize> = Range { start: 29, end: 35 };
+    const DROPS_RANGE: Range<usize> = Range { start: 35, end: 44 };
+    const DROPS_FEE_RANGE: Range<usize> = Range { start: 44, end: 53 };
+    const SIGNING_PUBKEY_RANGE: Range<usize> = Range { start: 53, end: 88 };
+    const ACCOUNT_SRC_RANGE: Range<usize> = Range {
+        start: 88,
+        end: 110,
+    };
+    const ACCOUNT_DST_RANGE: Range<usize> = Range {
+        start: 110,
+        end: 132,
+    };
+    const ETXN_DETAILS_RANGE: Range<usize> = Range {
+        start: 132,
+        end: 237,
+    };
 
     let mut acc: AccountId = uninit_buf!();
     match hook_account(&mut acc) {
@@ -445,20 +466,20 @@ fn encode_account_dst(buf_out: &mut [u8], account_id: &Buffer<ACC_ID_LEN>) {
 #[inline(always)]
 fn encode_u32_common(buf_out: &mut [u8], i: u32, field: u8) {
     buf_out[0] = 0x20 + (field & 0x0F);
-    buf_out[1] =((i >> 24 ) & 0xFF) as u8;
-    buf_out[2] =((i >> 16 ) & 0xFF) as u8;
-    buf_out[3] =((i >>  8 ) & 0xFF) as u8;
-    buf_out[4] =((i >>  0 ) & 0xFF) as u8;
+    buf_out[1] = ((i >> 24) & 0xFF) as u8;
+    buf_out[2] = ((i >> 16) & 0xFF) as u8;
+    buf_out[3] = ((i >> 8) & 0xFF) as u8;
+    buf_out[4] = ((i >> 0) & 0xFF) as u8;
 }
 
 #[inline(always)]
 fn encode_u32_uncommon(buf_out: &mut [u8], i: u32, field: u8) {
     buf_out[0] = 0x20;
     buf_out[1] = field;
-    buf_out[2] =((i >> 24 ) & 0xFF) as u8;
-    buf_out[3] =((i >> 16 ) & 0xFF) as u8;
-    buf_out[4] =((i >>  8 ) & 0xFF) as u8;
-    buf_out[5] =((i >>  0 ) & 0xFF) as u8;
+    buf_out[2] = ((i >> 24) & 0xFF) as u8;
+    buf_out[3] = ((i >> 16) & 0xFF) as u8;
+    buf_out[4] = ((i >> 8) & 0xFF) as u8;
+    buf_out[5] = ((i >> 0) & 0xFF) as u8;
 }
 
 #[inline(always)]
@@ -470,8 +491,8 @@ fn encode_drops(buf_out: &mut [u8], drops: u64, amount_type: AmountType) {
     buf_out[4] = ((drops >> 32) & 0xFF) as u8;
     buf_out[5] = ((drops >> 24) & 0xFF) as u8;
     buf_out[6] = ((drops >> 16) & 0xFF) as u8;
-    buf_out[7] = ((drops >>  8) & 0xFF) as u8;
-    buf_out[8] = ((drops >>  0) & 0xFF) as u8;
+    buf_out[7] = ((drops >> 8) & 0xFF) as u8;
+    buf_out[8] = ((drops >> 0) & 0xFF) as u8;
 }
 
 #[inline(always)]
@@ -493,7 +514,9 @@ mod tests {
     use super::*;
     use crate::_c;
 
-    const ACCOUNT_ID: AccountId = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
+    const ACCOUNT_ID: AccountId = [
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+    ];
 
     #[test]
     fn enc_account() {
@@ -509,14 +532,16 @@ mod tests {
 
     #[test]
     fn enc_signing_pubkey_null() {
-        let mut key: [u8; _c::ENCODE_SIGNING_PUBKEY_NULL_SIZE as usize] = 
-            [255; 35];
+        let mut key: [u8; _c::ENCODE_SIGNING_PUBKEY_NULL_SIZE as usize] = [255; 35];
 
         encode_signing_pubkey_null(&mut key);
 
         assert_eq!(
             key,
-            [0x73, 0x21, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            [
+                0x73, 0x21, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0, 0
+            ]
         )
     }
 }
