@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
+cd "$parent_path"
+
+header=c_bindings/h/hookapi.h
+bindings=c_bindings/bindings.rs
+
+bindgen \
+    --blocklist-item=".*stdint.*" \
+    --use-core \
+    --generate=functions,vars "$header" \
+    -o "$bindings" \
+&& \
+echo "OK: $bindings"
