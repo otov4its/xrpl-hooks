@@ -109,11 +109,11 @@ pub enum KeyletType<'a> {
     Page(&'a [u8], u32, u32),
     Escrow(&'a [u8], u32),
     Paychan(&'a [u8], &'a [u8], u32),
-    Emitted(&'a [u8])
+    Emitted(&'a [u8]),
 }
 
-//todo: think about enums #[repr(u32)] to safe mem::transmutes 
-//      return codes into enums 
+//todo: think about enums #[repr(u32)] to safe mem::transmutes
+//      return codes into enums
 
 #[derive(Clone, Copy)]
 pub enum FieldId {

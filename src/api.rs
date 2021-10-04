@@ -1,6 +1,6 @@
-use crate::{KeyletType, _c};
 use crate::error::Result::{self, Err, Ok};
 use crate::helpers::{DataRepr, FieldId};
+use crate::{KeyletType, _c};
 
 #[inline(always)]
 pub fn _g(id: u32, maxiter: u32) {
@@ -58,54 +58,43 @@ pub fn util_keylet(keylet: &mut [u8], keylet_type: KeyletType) -> Result<u64> {
     let write_len = keylet.len() as _;
 
     match keylet_type {
-        KeyletType::Hook(accid) => {
-            buf_read_and_zeroes(keylet, accid, _c::KEYLET_HOOK)
-        },
+        KeyletType::Hook(accid) => buf_read_and_zeroes(keylet, accid, _c::KEYLET_HOOK),
 
         KeyletType::HookState(accid, statekey) => {
             buf_2_read_and_zeroes(keylet, accid, statekey, _c::KEYLET_HOOK_STATE)
-        },
+        }
 
-        KeyletType::Account(accid) => {
-            buf_read_and_zeroes(keylet, accid, _c::KEYLET_ACCOUNT)
-        },
+        KeyletType::Account(accid) => buf_read_and_zeroes(keylet, accid, _c::KEYLET_ACCOUNT),
 
-        KeyletType::Amendments => {
-            all_zeroes(keylet, _c::KEYLET_AMENDMENTS)
-        },
+        KeyletType::Amendments => all_zeroes(keylet, _c::KEYLET_AMENDMENTS),
 
-        KeyletType::Child(key) => {
-            buf_read_and_zeroes(keylet, key, _c::KEYLET_CHILD)
-        },
+        KeyletType::Child(key) => buf_read_and_zeroes(keylet, key, _c::KEYLET_CHILD),
 
-        KeyletType::Skip(opt) => {
-            match opt {
-                None => {
-                    all_zeroes(keylet, _c::KEYLET_SKIP)
-                },
+        KeyletType::Skip(opt) => match opt {
+            None => all_zeroes(keylet, _c::KEYLET_SKIP),
 
-                Some((ledger_index, num)) => {
-                    let res = unsafe {
-                        _c::util_keylet(
-                            write_ptr,
-                            write_len,
-                            _c::KEYLET_SKIP,
-                            ledger_index, num, 0, 0, 0, 0
-                        )
-                    };
-        
-                    result(res)
-                }
+            Some((ledger_index, num)) => {
+                let res = unsafe {
+                    _c::util_keylet(
+                        write_ptr,
+                        write_len,
+                        _c::KEYLET_SKIP,
+                        ledger_index,
+                        num,
+                        0,
+                        0,
+                        0,
+                        0,
+                    )
+                };
+
+                result(res)
             }
         },
 
-        KeyletType::Fees => {
-            all_zeroes(keylet, _c::KEYLET_FEES)
-        },
+        KeyletType::Fees => all_zeroes(keylet, _c::KEYLET_FEES),
 
-        KeyletType::NegativeUnl => {
-            all_zeroes(keylet, _c::KEYLET_NEGATIVE_UNL)
-        },
+        KeyletType::NegativeUnl => all_zeroes(keylet, _c::KEYLET_NEGATIVE_UNL),
 
         KeyletType::Line(accid_high, accid_low, currency_code) => {
             let res = unsafe {
@@ -118,52 +107,42 @@ pub fn util_keylet(keylet: &mut [u8], keylet_type: KeyletType) -> Result<u64> {
                     accid_low.as_ptr() as _,
                     accid_low.len() as _,
                     currency_code.as_ptr() as _,
-                    currency_code.len() as _
+                    currency_code.len() as _,
                 )
             };
 
             result(res)
-        },
+        }
 
-        KeyletType::Offer(accid, num) => {
-            buf_read_and_1_arg(keylet, accid, num, _c::KEYLET_OFFER)
-        },
+        KeyletType::Offer(accid, num) => buf_read_and_1_arg(keylet, accid, num, _c::KEYLET_OFFER),
 
-        KeyletType::Quality(serialized_keylet, bits_high, bits_low) => {
-            buf_read_and_2_args(keylet, serialized_keylet, bits_high, bits_low, _c::KEYLET_QUALITY)
-        },
+        KeyletType::Quality(serialized_keylet, bits_high, bits_low) => buf_read_and_2_args(
+            keylet,
+            serialized_keylet,
+            bits_high,
+            bits_low,
+            _c::KEYLET_QUALITY,
+        ),
 
-        KeyletType::EmittedDir => {
-            all_zeroes(keylet, _c::KEYLET_EMITTED_DIR)
-        },
+        KeyletType::EmittedDir => all_zeroes(keylet, _c::KEYLET_EMITTED_DIR),
 
-        KeyletType::Signers(accid) => {
-            buf_read_and_zeroes(keylet, accid, _c::KEYLET_SIGNERS)
-        },
+        KeyletType::Signers(accid) => buf_read_and_zeroes(keylet, accid, _c::KEYLET_SIGNERS),
 
-        KeyletType::Check(accid, num) => {
-            buf_read_and_1_arg(keylet, accid, num, _c::KEYLET_CHECK)
-        },
+        KeyletType::Check(accid, num) => buf_read_and_1_arg(keylet, accid, num, _c::KEYLET_CHECK),
 
         KeyletType::DepositPreauth(accid_1, accid_2) => {
             buf_2_read_and_zeroes(keylet, accid_1, accid_2, _c::KEYLET_DEPOSIT_PREAUTH)
-        },
+        }
 
-        KeyletType::Unchecked(key) => {
-            buf_read_and_zeroes(keylet, key, _c::KEYLET_UNCHECKED)
-        },
+        KeyletType::Unchecked(key) => buf_read_and_zeroes(keylet, key, _c::KEYLET_UNCHECKED),
 
-        KeyletType::OwnerDir(accid) => {
-            buf_read_and_zeroes(keylet, accid, _c::KEYLET_OWNER_DIR)
-        },
+        KeyletType::OwnerDir(accid) => buf_read_and_zeroes(keylet, accid, _c::KEYLET_OWNER_DIR),
 
         KeyletType::Page(key, bits_high, bits_low) => {
             buf_read_and_2_args(keylet, key, bits_high, bits_low, _c::KEYLET_PAGE)
-        },
+        }
 
-        KeyletType::Escrow(accid, num) => {
-            buf_read_and_1_arg(keylet, accid, num, _c::KEYLET_ESCROW)
-        },
+        KeyletType::Escrow(accid, num) => buf_read_and_1_arg(keylet, accid, num, _c::KEYLET_ESCROW),
 
         KeyletType::Paychan(accid_1, accid_2, num) => {
             let res = unsafe {
@@ -175,16 +154,15 @@ pub fn util_keylet(keylet: &mut [u8], keylet_type: KeyletType) -> Result<u64> {
                     accid_1.len() as _,
                     accid_2.as_ptr() as _,
                     accid_2.len() as _,
-                    num, 0
+                    num,
+                    0,
                 )
             };
 
             result(res)
-        },
+        }
 
-        KeyletType::Emitted(key) => {
-            buf_read_and_zeroes(keylet, key, _c::KEYLET_EMITTED)
-        },
+        KeyletType::Emitted(key) => buf_read_and_zeroes(keylet, key, _c::KEYLET_EMITTED),
     }
 }
 
@@ -349,9 +327,7 @@ pub fn slot_id(slot_no: u32) -> Result<u64> {
 /// Locate an object based on its keylet and place it into a slot
 #[inline(always)]
 pub fn slot_set(keylet: &[u8], slot_no: i32) -> Result<u64> {
-    let res = unsafe {
-        _c::slot_set(keylet.as_ptr() as u32, keylet.len() as u32, slot_no)
-    };
+    let res = unsafe { _c::slot_set(keylet.as_ptr() as u32, keylet.len() as u32, slot_no) };
 
     result(res)
 }
@@ -378,9 +354,7 @@ pub fn slot_subfield(parent_slot: u32, field_id: FieldId, new_slot: u32) -> Resu
 /// Retrieve the field code of an object in a slot and, optionally, some other information
 #[inline(always)]
 pub fn slot_type(slot_no: u32, flags: u32) -> Result<u64> {
-    let res = unsafe {
-        _c::slot_type(slot_no, flags)
-    };
+    let res = unsafe { _c::slot_type(slot_no, flags) };
 
     result(res)
 }
@@ -619,7 +593,12 @@ fn all_zeroes(buf_write: &mut [u8], keylet_type_c: u32) -> Result<u64> {
             buf_write.as_mut_ptr() as _,
             buf_write.len() as _,
             keylet_type_c,
-            0, 0, 0, 0, 0, 0
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
         )
     };
 
@@ -635,7 +614,10 @@ fn buf_read_and_zeroes(buf_write: &mut [u8], buf_read: &[u8], keylet_type_c: u32
             keylet_type_c,
             buf_read.as_ptr() as _,
             buf_read.len() as _,
-            0, 0, 0, 0
+            0,
+            0,
+            0,
+            0,
         )
     };
 
@@ -643,7 +625,12 @@ fn buf_read_and_zeroes(buf_write: &mut [u8], buf_read: &[u8], keylet_type_c: u32
 }
 
 #[inline(always)]
-fn buf_read_and_1_arg(buf_write: &mut [u8], buf_read: &[u8], arg: u32, keylet_type_c: u32) -> Result<u64> {
+fn buf_read_and_1_arg(
+    buf_write: &mut [u8],
+    buf_read: &[u8],
+    arg: u32,
+    keylet_type_c: u32,
+) -> Result<u64> {
     let res = unsafe {
         _c::util_keylet(
             buf_write.as_mut_ptr() as _,
@@ -651,7 +638,10 @@ fn buf_read_and_1_arg(buf_write: &mut [u8], buf_read: &[u8], arg: u32, keylet_ty
             keylet_type_c,
             buf_read.as_ptr() as _,
             buf_read.len() as _,
-            arg, 0, 0, 0
+            arg,
+            0,
+            0,
+            0,
         )
     };
 
@@ -659,7 +649,13 @@ fn buf_read_and_1_arg(buf_write: &mut [u8], buf_read: &[u8], arg: u32, keylet_ty
 }
 
 #[inline(always)]
-fn buf_read_and_2_args(buf_write: &mut [u8], buf_read: &[u8], arg_1: u32, arg_2: u32, keylet_type_c: u32) -> Result<u64> {
+fn buf_read_and_2_args(
+    buf_write: &mut [u8],
+    buf_read: &[u8],
+    arg_1: u32,
+    arg_2: u32,
+    keylet_type_c: u32,
+) -> Result<u64> {
     let res = unsafe {
         _c::util_keylet(
             buf_write.as_mut_ptr() as _,
@@ -667,7 +663,10 @@ fn buf_read_and_2_args(buf_write: &mut [u8], buf_read: &[u8], arg_1: u32, arg_2:
             keylet_type_c,
             buf_read.as_ptr() as _,
             buf_read.len() as _,
-            arg_1, arg_2, 0, 0
+            arg_1,
+            arg_2,
+            0,
+            0,
         )
     };
 
@@ -675,7 +674,12 @@ fn buf_read_and_2_args(buf_write: &mut [u8], buf_read: &[u8], arg_1: u32, arg_2:
 }
 
 #[inline(always)]
-fn buf_2_read_and_zeroes(buf_write: &mut [u8], buf_1_read: &[u8], buf_2_read: &[u8], keylet_type_c: u32) -> Result<u64> {
+fn buf_2_read_and_zeroes(
+    buf_write: &mut [u8],
+    buf_1_read: &[u8],
+    buf_2_read: &[u8],
+    keylet_type_c: u32,
+) -> Result<u64> {
     let res = unsafe {
         _c::util_keylet(
             buf_write.as_mut_ptr() as _,
@@ -685,7 +689,8 @@ fn buf_2_read_and_zeroes(buf_write: &mut [u8], buf_1_read: &[u8], buf_2_read: &[
             buf_1_read.len() as _,
             buf_2_read.as_ptr() as _,
             buf_2_read.len() as _,
-            0, 0
+            0,
+            0,
         )
     };
 
