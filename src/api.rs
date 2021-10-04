@@ -189,86 +189,6 @@ pub fn util_keylet(keylet: &mut [u8], keylet_type: KeyletType) -> Result<u64> {
 }
 
 #[inline(always)]
-fn all_zeroes(buf_write: &mut [u8], keylet_type_c: u32) -> Result<u64> {
-    let res = unsafe {
-        _c::util_keylet(
-            buf_write.as_mut_ptr() as _,
-            buf_write.len() as _,
-            keylet_type_c,
-            0, 0, 0, 0, 0, 0
-        )
-    };
-
-    return result(res);
-}
-
-#[inline(always)]
-fn buf_read_and_zeroes(buf_write: &mut [u8], buf_read: &[u8], keylet_type_c: u32) -> Result<u64> {
-    let res = unsafe {
-        _c::util_keylet(
-            buf_write.as_mut_ptr() as _,
-            buf_write.len() as _,
-            keylet_type_c,
-            buf_read.as_ptr() as _,
-            buf_read.len() as _,
-            0, 0, 0, 0
-        )
-    };
-
-    return result(res);
-}
-
-#[inline(always)]
-fn buf_read_and_1_arg(buf_write: &mut [u8], buf_read: &[u8], arg: u32, keylet_type_c: u32) -> Result<u64> {
-    let res = unsafe {
-        _c::util_keylet(
-            buf_write.as_mut_ptr() as _,
-            buf_write.len() as _,
-            keylet_type_c,
-            buf_read.as_ptr() as _,
-            buf_read.len() as _,
-            arg, 0, 0, 0
-        )
-    };
-
-    return result(res);
-}
-
-#[inline(always)]
-fn buf_read_and_2_args(buf_write: &mut [u8], buf_read: &[u8], arg_1: u32, arg_2: u32, keylet_type_c: u32) -> Result<u64> {
-    let res = unsafe {
-        _c::util_keylet(
-            buf_write.as_mut_ptr() as _,
-            buf_write.len() as _,
-            keylet_type_c,
-            buf_read.as_ptr() as _,
-            buf_read.len() as _,
-            arg_1, arg_2, 0, 0
-        )
-    };
-
-    return result(res);
-}
-
-#[inline(always)]
-fn buf_2_read_and_zeroes(buf_write: &mut [u8], buf_1_read: &[u8], buf_2_read: &[u8], keylet_type_c: u32) -> Result<u64> {
-    let res = unsafe {
-        _c::util_keylet(
-            buf_write.as_mut_ptr() as _,
-            buf_write.len() as _,
-            keylet_type_c,
-            buf_1_read.as_ptr() as _,
-            buf_1_read.len() as _,
-            buf_2_read.as_ptr() as _,
-            buf_2_read.len() as _,
-            0, 0
-        )
-    };
-
-    return result(res);
-}
-
-#[inline(always)]
 pub fn sto_subfield(sto: &[u8], field_id: FieldId) -> Result<&[u8]> {
     let res = unsafe { _c::sto_subfield(sto.as_ptr() as u32, sto.len() as u32, field_id as _) };
 
@@ -690,4 +610,84 @@ fn range_from_location(location: i64) -> core::ops::Range<usize> {
         start: offset as _,
         end: (offset + lenght) as _,
     }
+}
+
+#[inline(always)]
+fn all_zeroes(buf_write: &mut [u8], keylet_type_c: u32) -> Result<u64> {
+    let res = unsafe {
+        _c::util_keylet(
+            buf_write.as_mut_ptr() as _,
+            buf_write.len() as _,
+            keylet_type_c,
+            0, 0, 0, 0, 0, 0
+        )
+    };
+
+    return result(res);
+}
+
+#[inline(always)]
+fn buf_read_and_zeroes(buf_write: &mut [u8], buf_read: &[u8], keylet_type_c: u32) -> Result<u64> {
+    let res = unsafe {
+        _c::util_keylet(
+            buf_write.as_mut_ptr() as _,
+            buf_write.len() as _,
+            keylet_type_c,
+            buf_read.as_ptr() as _,
+            buf_read.len() as _,
+            0, 0, 0, 0
+        )
+    };
+
+    return result(res);
+}
+
+#[inline(always)]
+fn buf_read_and_1_arg(buf_write: &mut [u8], buf_read: &[u8], arg: u32, keylet_type_c: u32) -> Result<u64> {
+    let res = unsafe {
+        _c::util_keylet(
+            buf_write.as_mut_ptr() as _,
+            buf_write.len() as _,
+            keylet_type_c,
+            buf_read.as_ptr() as _,
+            buf_read.len() as _,
+            arg, 0, 0, 0
+        )
+    };
+
+    return result(res);
+}
+
+#[inline(always)]
+fn buf_read_and_2_args(buf_write: &mut [u8], buf_read: &[u8], arg_1: u32, arg_2: u32, keylet_type_c: u32) -> Result<u64> {
+    let res = unsafe {
+        _c::util_keylet(
+            buf_write.as_mut_ptr() as _,
+            buf_write.len() as _,
+            keylet_type_c,
+            buf_read.as_ptr() as _,
+            buf_read.len() as _,
+            arg_1, arg_2, 0, 0
+        )
+    };
+
+    return result(res);
+}
+
+#[inline(always)]
+fn buf_2_read_and_zeroes(buf_write: &mut [u8], buf_1_read: &[u8], buf_2_read: &[u8], keylet_type_c: u32) -> Result<u64> {
+    let res = unsafe {
+        _c::util_keylet(
+            buf_write.as_mut_ptr() as _,
+            buf_write.len() as _,
+            keylet_type_c,
+            buf_1_read.as_ptr() as _,
+            buf_1_read.len() as _,
+            buf_2_read.as_ptr() as _,
+            buf_2_read.len() as _,
+            0, 0
+        )
+    };
+
+    return result(res);
 }
