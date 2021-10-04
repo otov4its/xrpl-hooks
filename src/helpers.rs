@@ -85,6 +85,9 @@ pub enum AmountType {
     DeliveredAmount = _c::amDELIVEREDAMOUNT as isize,
 }
 
+//todo: think about enums #[repr(u32)] to safe mem::transmutes 
+//      return codes into enums 
+
 #[derive(Clone, Copy)]
 pub enum FieldId {
     Invalid = _c::sfInvalid as isize,
