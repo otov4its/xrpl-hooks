@@ -7,6 +7,7 @@ use crate::*;
 pub const TF_CANONICAL: u32 = _c::tfCANONICAL;
 
 pub const ACC_ID_LEN: usize = 20;
+pub const CURRENCY_CODE_SIZE: usize = 20;
 pub const LEDGER_HASH_LEN: usize = 32;
 pub const KEYLET_LEN: usize = 34;
 pub const STATE_KEY_LEN: usize = 32;
@@ -26,6 +27,7 @@ pub type Nonce = Buffer<NONCE_LEN>;
 pub type Amount = Buffer<AMOUNT_LEN>;
 pub type TxnPaymentSimple = Buffer<PREPARE_PAYMENT_SIMPLE_SIZE>;
 pub type EmitDetails = Buffer<EMIT_DETAILS_SIZE>;
+pub type CurrencyCode = Buffer<CURRENCY_CODE_SIZE>;
 
 #[derive(Clone, Copy)]
 pub enum TxnType {
@@ -83,6 +85,31 @@ pub enum AmountType {
     MinimumOffer = _c::amMINIMUMOFFER as isize,
     RippleEscrow = _c::amRIPPLEESCROW as isize,
     DeliveredAmount = _c::amDELIVEREDAMOUNT as isize,
+}
+
+#[derive(Clone, Copy)]
+pub enum KeyletType<'a> {
+    Hook(&'a [u8]),
+    HookState(&'a [u8], &'a [u8]),
+    Account(&'a [u8]),
+    Amendments,
+    Child(&'a [u8]),
+    Skip(Option<(u32, u32)>),
+    Fees,
+    NegativeUnl,
+    Line(&'a [u8], &'a [u8], &'a [u8]),
+    Offer(&'a [u8], u32),
+    Quality(&'a [u8], u32, u32),
+    EmittedDir,
+    Signers(&'a [u8]),
+    Check(&'a [u8], u32),
+    DepositPreauth(&'a [u8], &'a [u8]),
+    Unchecked(&'a [u8]),
+    OwnerDir(&'a [u8]),
+    Page(&'a [u8], u32, u32),
+    Escrow(&'a [u8], u32),
+    Paychan(&'a [u8], &'a [u8], u32),
+    Emitted(&'a [u8])
 }
 
 //todo: think about enums #[repr(u32)] to safe mem::transmutes 
