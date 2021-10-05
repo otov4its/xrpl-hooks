@@ -2,12 +2,15 @@
 
 ## Unreleased
 
-!!! VERSION TO 0.2.0
+* nothing
+
+## 0.2.0 (2021-10-05)
+
 * Added slot API
 * Added util_keylet() API
 * Added float API
-* Added some docs
 * Changed modules layout
+* Added concise docs
 
 ## 0.1.0 (2021-10-03)
 

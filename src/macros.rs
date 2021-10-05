@@ -5,7 +5,7 @@
 /// Use this macro every time you need a buffer.
 ///
 /// # Example
-/// 
+///
 /// ``` txt
 /// let mut buf: [u8; 20] = uninit_buf!();
 /// ```

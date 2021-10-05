@@ -50,7 +50,6 @@ pub fn buffer_zeroize<const GUARD_ID: u32>(buf: &mut [u8]) {
     }
 }
 
-
 /// Checks whether the transaction is outgoing
 ///
 /// Pay attention to the GUARD_ID parameter.

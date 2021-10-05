@@ -2,7 +2,7 @@ use crate::_c;
 
 /// Guard function
 ///
-/// Each time a loop appears in your code a call to this must be 
+/// Each time a loop appears in your code a call to this must be
 /// the first branch instruction in wasm binary after the beginning of the loop.
 /// In order to achieve this in Rust use the `while` loop with expression block.
 ///

@@ -89,7 +89,7 @@ pub fn float_sto(
     currency_code: &[u8],
     issuer_accid: &[u8],
     float: XFL,
-    field_code: FieldId
+    field_code: FieldId,
 ) -> Result<u64> {
     let res = unsafe {
         _c::float_sto(
@@ -100,7 +100,7 @@ pub fn float_sto(
             issuer_accid.as_ptr() as _,
             issuer_accid.len() as _,
             float.0,
-            field_code as _
+            field_code as _,
         )
     };
 
@@ -155,7 +155,7 @@ pub fn float_sign(float: XFL) -> Result<bool> {
     match unsafe { _c::float_sign(float.0) } {
         0 => Ok(false),
         1 => Ok(true),
-        res => Err(res)
+        res => Err(res),
     }
 }
 

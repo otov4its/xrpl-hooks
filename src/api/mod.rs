@@ -1,27 +1,26 @@
 use crate::_c;
 
 mod control;
-mod util;
-mod sto;
 mod etxn;
 mod float;
 mod ledger;
+mod otxn;
 mod slot;
 mod state;
+mod sto;
 mod trace;
-mod otxn;
+mod util;
 
 pub use control::*;
-pub use util::*;
-pub use sto::*;
 pub use etxn::*;
 pub use float::*;
 pub use ledger::*;
+pub use otxn::*;
 pub use slot::*;
 pub use state::*;
+pub use sto::*;
 pub use trace::*;
-pub use otxn::*;
-
+pub use util::*;
 
 /// Flags canonical
 pub const TF_CANONICAL: u32 = _c::tfCANONICAL;
@@ -344,7 +343,6 @@ pub enum DataRepr {
     AsHex = 1,
 }
 
-
 /// `Result` is a type that represents either success ([`Ok`]) or failure ([`Err`]).
 //
 /// This is simple version of Result type
@@ -423,7 +421,6 @@ impl<T> Result<T> {
         !self.is_ok()
     }
 }
-
 
 type Api1ArgsU32 = unsafe extern "C" fn(u32) -> i64;
 type Api2ArgsU32 = unsafe extern "C" fn(u32, u32) -> i64;
