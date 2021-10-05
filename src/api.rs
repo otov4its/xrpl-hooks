@@ -88,7 +88,7 @@ pub fn util_keylet(keylet: &mut [u8], keylet_type: KeyletType) -> Result<u64> {
                     )
                 };
 
-                result(res)
+                result_u64(res)
             }
         },
 
@@ -111,7 +111,7 @@ pub fn util_keylet(keylet: &mut [u8], keylet_type: KeyletType) -> Result<u64> {
                 )
             };
 
-            result(res)
+            result_u64(res)
         }
 
         KeyletType::Offer(accid, num) => buf_read_and_1_arg(keylet, accid, num, _c::KEYLET_OFFER),
@@ -159,7 +159,7 @@ pub fn util_keylet(keylet: &mut [u8], keylet_type: KeyletType) -> Result<u64> {
                 )
             };
 
-            result(res)
+            result_u64(res)
         }
 
         KeyletType::Emitted(key) => buf_read_and_zeroes(keylet, key, _c::KEYLET_EMITTED),
@@ -209,7 +209,7 @@ pub fn sto_emplace(
         )
     };
 
-    result(res)
+    result_u64(res)
 }
 
 #[inline(always)]
@@ -224,7 +224,7 @@ pub fn sto_erase(sto_out: &mut [u8], sto_src: &[u8], field_id: FieldId) -> Resul
         )
     };
 
-    result(res)
+    result_u64(res)
 }
 
 #[inline(always)]
@@ -268,7 +268,193 @@ pub fn emit(hash: &mut [u8], tx_buf: &[u8]) -> Result<u64> {
     buf_write_read(hash, tx_buf, _c::emit)
 }
 
-//TODO: float api
+/// XFL floating point numbers
+#[derive(Clone, Copy)]
+pub struct XFL(i64 /* enclosing number */);
+
+/// Create a float from an exponent and mantissa
+#[inline(always)]
+pub fn float_set(exponent: i32, mantissa: i64) -> Result<XFL> {
+    let res = unsafe { _c::float_set(exponent, mantissa) };
+
+    result_xfl(res)
+}
+
+/// Multiply two XFL numbers together
+#[inline(always)]
+pub fn float_multiply(float1: XFL, float2: XFL) -> Result<XFL> {
+    let res = unsafe { _c::float_multiply(float1.0, float2.0) };
+
+    result_xfl(res)
+}
+
+/// Multiply an XFL floating point by a non-XFL numerator and denominator
+#[inline(always)]
+pub fn float_mulratio(
+    float1: XFL,
+    round_up: bool,
+    numerator: u32,
+    denominator: u32,
+) -> Result<XFL> {
+    let res = unsafe { _c::float_mulratio(float1.0, round_up as _, numerator, denominator) };
+
+    result_xfl(res)
+}
+
+/// Negate an XFL floating point number
+#[inline(always)]
+pub fn float_negate(float: XFL) -> Result<XFL> {
+    let res = unsafe { _c::float_negate(float.0) };
+
+    result_xfl(res)
+}
+
+/// XFL compare mode
+#[derive(Clone, Copy)]
+pub enum XFLCompareMode {
+    Less,
+    Equal,
+    Greater,
+    NotEqual,
+    LessOrEqual,
+    GreaterOrEqual,
+}
+
+/// Perform a comparison on two XFL floating point numbers
+#[inline(always)]
+pub fn float_compare(float1: XFL, float2: XFL, mode: XFLCompareMode) -> Result<bool> {
+    let mode = match mode {
+        XFLCompareMode::Less => _c::COMPARE_LESS,
+        XFLCompareMode::Equal => _c::COMPARE_EQUAL,
+        XFLCompareMode::Greater => _c::COMPARE_GREATER,
+        XFLCompareMode::NotEqual => _c::COMPARE_LESS | _c::COMPARE_GREATER,
+        XFLCompareMode::LessOrEqual => _c::COMPARE_LESS | _c::COMPARE_EQUAL,
+        XFLCompareMode::GreaterOrEqual => _c::COMPARE_GREATER | _c::COMPARE_EQUAL,
+    };
+
+    let res = unsafe { _c::float_compare(float1.0, float2.0, mode) };
+
+    match res {
+        0 => Ok(false),
+        1 => Ok(true),
+        _ => Err(res),
+    }
+}
+
+/// Add two XFL numbers together
+#[inline(always)]
+pub fn float_sum(float1: XFL, float2: XFL) -> Result<XFL> {
+    let res = unsafe { _c::float_sum(float1.0, float2.0) };
+
+    result_xfl(res)
+}
+
+/// Output an XFL as a serialized object
+#[inline(always)]
+pub fn float_sto(
+    amount: &mut [u8],
+    currency_code: &[u8],
+    issuer_accid: &[u8],
+    float: XFL,
+    field_code: FieldId
+) -> Result<u64> {
+    let res = unsafe {
+        _c::float_sto(
+            amount.as_mut_ptr() as _,
+            amount.len() as _,
+            currency_code.as_ptr() as _,
+            currency_code.len() as _,
+            issuer_accid.as_ptr() as _,
+            issuer_accid.len() as _,
+            float.0,
+            field_code as _
+        )
+    };
+
+    result_u64(res)
+}
+
+/// Read a serialized amount into an XFL
+#[inline(always)]
+pub fn float_sto_set(sto_xfl: &[u8]) -> Result<XFL> {
+    let res = unsafe { _c::float_sto_set(sto_xfl.as_ptr() as _, sto_xfl.len() as _) };
+
+    result_xfl(res)
+}
+
+/// Divide one by an XFL floating point number
+#[inline(always)]
+pub fn float_invert(float: XFL) -> Result<XFL> {
+    let res = unsafe { _c::float_invert(float.0) };
+
+    result_xfl(res)
+}
+
+/// Divide an XFL by another XFL floating point number
+#[inline(always)]
+pub fn float_divide(float1: XFL, float2: XFL) -> Result<XFL> {
+    let res = unsafe { _c::float_divide(float1.0, float2.0) };
+
+    result_xfl(res)
+}
+
+/// Return the number 1 represented in an XFL enclosing number
+#[inline(always)]
+pub fn float_one() -> XFL {
+    XFL(unsafe { _c::float_one() })
+}
+
+/// Get the exponent of an XFL enclosing number
+#[inline(always)]
+pub fn float_exponent(float: XFL) -> i64 {
+    unsafe { _c::float_exponent(float.0) }
+}
+
+/// Get the mantissa of an XFL enclosing number
+#[inline(always)]
+pub fn float_mantissa(float: XFL) -> i64 {
+    unsafe { _c::float_mantissa(float.0) }
+}
+
+/// Get the sign of an XFL enclosing number
+#[inline(always)]
+pub fn float_sign(float: XFL) -> Result<bool> {
+    match unsafe { _c::float_sign(float.0) } {
+        0 => Ok(false),
+        1 => Ok(true),
+        res => Err(res)
+    }
+}
+
+/// Set the exponent of an XFL enclosing number
+#[inline(always)]
+pub fn float_exponent_set(float: XFL, exponent: i32) -> Result<XFL> {
+    let res = unsafe { _c::float_exponent_set(float.0, exponent) };
+
+    result_xfl(res)
+}
+
+/// Set the mantissa of an XFL enclosing number
+#[inline(always)]
+pub fn float_mantissa_set(float: XFL, mantissa: i64) -> Result<XFL> {
+    let res = unsafe { _c::float_mantissa_set(float.0, mantissa) };
+
+    result_xfl(res)
+}
+
+/// Set the sign of an XFL enclosing number
+#[inline(always)]
+pub fn float_sign_set(float: XFL, sign: bool) -> XFL {
+    XFL(unsafe { _c::float_sign_set(float.0, sign as _) })
+}
+
+/// Convert an XFL floating point into an integer (floor)
+#[inline(always)]
+pub fn float_int(float: XFL, decimal_places: u32, absolute: bool) -> Result<u64> {
+    let res = unsafe { _c::float_int(float.0, decimal_places, absolute as _) };
+
+    result_u64(res)
+}
 
 #[inline(always)]
 pub fn hook_account(accid: &mut [u8]) -> Result<u64> {
@@ -329,7 +515,7 @@ pub fn slot_id(slot_no: u32) -> Result<u64> {
 pub fn slot_set(keylet: &[u8], slot_no: i32) -> Result<u64> {
     let res = unsafe { _c::slot_set(keylet.as_ptr() as u32, keylet.len() as u32, slot_no) };
 
-    result(res)
+    result_u64(res)
 }
 
 /// Compute the serialized size of an object in a slot
@@ -356,13 +542,15 @@ pub fn slot_subfield(parent_slot: u32, field_id: FieldId, new_slot: u32) -> Resu
 pub fn slot_type(slot_no: u32, flags: u32) -> Result<u64> {
     let res = unsafe { _c::slot_type(slot_no, flags) };
 
-    result(res)
+    result_u64(res)
 }
 
 /// Parse the STI_AMOUNT in the specified slot and return it as an XFL enclosed number
 #[inline(always)]
-pub fn slot_float(slot_no: u32) -> Result<u64> {
-    api_1arg_call(slot_no, _c::slot_float)
+pub fn slot_float(slot_no: u32) -> Result<XFL> {
+    let res = unsafe { _c::slot_float(slot_no) };
+
+    result_xfl(res)
 }
 
 #[inline(always)]
@@ -388,7 +576,7 @@ pub fn state_foreign(data: &mut [u8], key: &[u8], accid: &[u8]) -> Result<u64> {
         )
     };
 
-    result(res)
+    result_u64(res)
 }
 
 #[inline(always)]
@@ -403,28 +591,28 @@ pub fn trace(msg: &[u8], data: &[u8], data_repr: DataRepr) -> Result<u64> {
         )
     };
 
-    result(res)
+    result_u64(res)
 }
 
 #[inline(always)]
 pub fn trace_num(msg: &[u8], number: i64) -> Result<u64> {
     let res = unsafe { _c::trace_num(msg.as_ptr() as u32, msg.len() as u32, number) };
 
-    result(res)
+    result_u64(res)
 }
 
 #[inline(always)]
 pub fn trace_slot(msg: &[u8], slot: u32) -> Result<u64> {
     let res = unsafe { _c::trace_slot(msg.as_ptr() as u32, msg.len() as u32, slot) };
 
-    result(res)
+    result_u64(res)
 }
 
 #[inline(always)]
-pub fn trace_float(msg: &[u8], float: i64) -> Result<u64> {
-    let res = unsafe { _c::trace_float(msg.as_ptr() as u32, msg.len() as u32, float) };
+pub fn trace_float(msg: &[u8], float: XFL) -> Result<u64> {
+    let res = unsafe { _c::trace_float(msg.as_ptr() as u32, msg.len() as u32, float.0) };
 
-    result(res)
+    result_u64(res)
 }
 
 #[inline(always)]
@@ -470,7 +658,6 @@ type Api6ArgsU32 = unsafe extern "C" fn(u32, u32, u32, u32, u32, u32) -> i64;
 
 type BufWriter = Api2ArgsU32;
 type BufReader = Api2ArgsU32;
-//type BufReader1Arg = Api3ArgsU32;
 type Buf2Reader = Api4ArgsU32;
 type BufWriterReader = Api4ArgsU32;
 type Buf3Reader = Api6ArgsU32;
@@ -480,43 +667,36 @@ type BufWriter1Arg = Api3ArgsU32;
 fn api_1arg_call(arg: u32, fun: Api1ArgsU32) -> Result<u64> {
     let res = unsafe { fun(arg) };
 
-    result(res)
+    result_u64(res)
 }
 
 #[inline(always)]
 fn api_3arg_call(arg_1: u32, arg_2: u32, arg_3: u32, fun: Api3ArgsU32) -> Result<u64> {
     let res = unsafe { fun(arg_1, arg_2, arg_3) };
 
-    result(res)
+    result_u64(res)
 }
 
 #[inline(always)]
 fn buf_write(buf_write: &mut [u8], fun: BufWriter) -> Result<u64> {
     let res = unsafe { fun(buf_write.as_mut_ptr() as u32, buf_write.len() as u32) };
 
-    result(res)
+    result_u64(res)
 }
 
 #[inline(always)]
 fn buf_write_1arg(buf_write: &mut [u8], arg: u32, fun: BufWriter1Arg) -> Result<u64> {
     let res = unsafe { fun(buf_write.as_mut_ptr() as u32, buf_write.len() as u32, arg) };
 
-    result(res)
+    result_u64(res)
 }
 
 #[inline(always)]
 fn buf_read(buf: &[u8], fun: BufReader) -> Result<u64> {
     let res = unsafe { fun(buf.as_ptr() as u32, buf.len() as u32) };
 
-    result(res)
+    result_u64(res)
 }
-
-// #[inline(always)]
-// fn buf_read_1arg(buf: &[u8], arg: u32, fun: BufReader1Arg) -> Result<u64> {
-//     let res = unsafe { fun(buf.as_ptr() as u32, buf.len() as u32, arg) };
-
-//     result(res)
-// }
 
 #[inline(always)]
 fn buf_2read(buf_1: &[u8], buf_2: &[u8], fun: Buf2Reader) -> Result<u64> {
@@ -529,7 +709,7 @@ fn buf_2read(buf_1: &[u8], buf_2: &[u8], fun: Buf2Reader) -> Result<u64> {
         )
     };
 
-    result(res)
+    result_u64(res)
 }
 
 #[inline(always)]
@@ -543,7 +723,7 @@ fn buf_write_read(buf_write: &mut [u8], buf_read: &[u8], fun: BufWriterReader) -
         )
     };
 
-    result(res)
+    result_u64(res)
 }
 
 #[inline(always)]
@@ -564,11 +744,11 @@ fn buf_3_read(
         )
     };
 
-    result(res)
+    result_u64(res)
 }
 
 #[inline(always)]
-fn result(res: i64) -> Result<u64> {
+fn result_u64(res: i64) -> Result<u64> {
     match res {
         res if res >= 0 => Ok(res as _),
         _ => Err(res),
@@ -602,7 +782,7 @@ fn all_zeroes(buf_write: &mut [u8], keylet_type_c: u32) -> Result<u64> {
         )
     };
 
-    return result(res);
+    result_u64(res)
 }
 
 #[inline(always)]
@@ -621,7 +801,7 @@ fn buf_read_and_zeroes(buf_write: &mut [u8], buf_read: &[u8], keylet_type_c: u32
         )
     };
 
-    return result(res);
+    result_u64(res)
 }
 
 #[inline(always)]
@@ -645,7 +825,7 @@ fn buf_read_and_1_arg(
         )
     };
 
-    return result(res);
+    result_u64(res)
 }
 
 #[inline(always)]
@@ -670,7 +850,7 @@ fn buf_read_and_2_args(
         )
     };
 
-    return result(res);
+    result_u64(res)
 }
 
 #[inline(always)]
@@ -694,5 +874,13 @@ fn buf_2_read_and_zeroes(
         )
     };
 
-    return result(res);
+    result_u64(res)
+}
+
+#[inline(always)]
+fn result_xfl(res: i64) -> Result<XFL> {
+    match res {
+        res if res >= 0 => Ok(XFL(res)),
+        _ => Err(res),
+    }
 }
