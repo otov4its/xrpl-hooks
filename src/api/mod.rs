@@ -1,5 +1,3 @@
-#![allow(missing_docs)] //todo more detailed docs
-
 use crate::_c;
 
 mod control;
@@ -25,31 +23,53 @@ pub use trace::*;
 pub use otxn::*;
 
 
+/// Flags canonical
 pub const TF_CANONICAL: u32 = _c::tfCANONICAL;
 
+/// Account id buffer lenght
 pub const ACC_ID_LEN: usize = 20;
+/// Currency code buffer lenght
 pub const CURRENCY_CODE_SIZE: usize = 20;
+/// Ledger hash buffer lenght
 pub const LEDGER_HASH_LEN: usize = 32;
+/// Keylet buffer lenght
 pub const KEYLET_LEN: usize = 34;
+/// State key buffer lenght
 pub const STATE_KEY_LEN: usize = 32;
+/// Nonce buffer lenght
 pub const NONCE_LEN: usize = 32;
+/// Hash buffer lenght
 pub const HASH_LEN: usize = 32;
+/// Amount buffer lenght
 pub const AMOUNT_LEN: usize = 48;
+/// Payment simple transaction buffer lenght
 pub const PREPARE_PAYMENT_SIMPLE_SIZE: usize = _c::PREPARE_PAYMENT_SIMPLE_SIZE as _;
+/// Emit details buffer lenght
 pub const EMIT_DETAILS_SIZE: usize = 105;
 
+/// Buffer of the specified size
 pub type Buffer<const T: usize> = [u8; T];
 
+/// Account id buffer
 pub type AccountId = Buffer<ACC_ID_LEN>;
+/// Hash buffer
 pub type Hash = Buffer<HASH_LEN>;
+/// Keylet buffer
 pub type Keylet = Buffer<KEYLET_LEN>;
+/// State key buffer
 pub type StateKey = Buffer<STATE_KEY_LEN>;
+/// Nonce buffer
 pub type Nonce = Buffer<NONCE_LEN>;
+/// Amount buffer
 pub type Amount = Buffer<AMOUNT_LEN>;
+/// Simple payment transaction buffer
 pub type TxnPaymentSimple = Buffer<PREPARE_PAYMENT_SIMPLE_SIZE>;
+/// Emit details buffer
 pub type EmitDetails = Buffer<EMIT_DETAILS_SIZE>;
+/// Currency code buffer
 pub type CurrencyCode = Buffer<CURRENCY_CODE_SIZE>;
 
+/// Transaction type
 #[allow(missing_docs)]
 #[derive(Clone, Copy)]
 pub enum TxnType {
@@ -79,6 +99,7 @@ pub enum TxnType {
     UnlModify = 102,
 }
 
+/// Account type
 #[allow(missing_docs)]
 #[derive(Clone, Copy)]
 pub enum AccountType {
@@ -93,6 +114,7 @@ pub enum AccountType {
     PseudoCallback = _c::atPSEUDOCALLBACK as isize,
 }
 
+/// Amount type
 #[allow(missing_docs)]
 #[derive(Clone, Copy)]
 pub enum AmountType {
@@ -111,6 +133,7 @@ pub enum AmountType {
     DeliveredAmount = _c::amDELIVEREDAMOUNT as isize,
 }
 
+/// Keylet type
 #[allow(missing_docs)]
 #[derive(Clone, Copy)]
 pub enum KeyletType<'a> {
@@ -140,6 +163,7 @@ pub enum KeyletType<'a> {
 //todo: think about enums #[repr(u32)] to safe mem::transmutes
 //      return codes into enums
 
+/// Field type
 #[allow(missing_docs)]
 #[derive(Clone, Copy)]
 pub enum FieldId {

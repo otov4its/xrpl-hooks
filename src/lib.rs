@@ -18,6 +18,8 @@
 #![doc(test(attr(deny(warnings))))]
 #![doc(html_root_url = "https://docs.rs/xrpl-hooks/0.1.0")]
 
+mod macros;
+
 /// # Low-level unsafe C bindings
 ///
 /// Use very carefully if at all necessary.
@@ -29,11 +31,8 @@ pub mod api;
 /// A few utilities
 pub mod helpers;
 
-/// Usefull macros to comply XRPL Hooks
-pub mod macros;
-
 // Prelude
-pub use {api::*, helpers::*, macros::*};
+pub use {api::*, helpers::*};
 
 #[cfg(not(test))]
 use core::panic::PanicInfo;
