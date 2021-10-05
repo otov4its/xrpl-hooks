@@ -2,6 +2,22 @@ use crate::error::Result::{self, Err, Ok};
 use crate::helpers::{DataRepr, FieldId};
 use crate::{KeyletType, _c};
 
+/// Guard function
+///
+/// Each time a loop appears in your code a call to this must be 
+/// the first branch instruction after the beginning of the loop.
+/// In order to achieve this in Rust use the while loop in this
+/// manner:
+/// ``` txt
+/// let mut i = 0;
+/// while {
+///     _g(UNIQUE_GUARD_ID, MAXITER);
+///     i < MAXITER
+/// } {
+///     ...
+///     i += 1;
+/// }
+/// ```
 #[inline(always)]
 pub fn _g(id: u32, maxiter: u32) {
     unsafe {
@@ -9,6 +25,7 @@ pub fn _g(id: u32, maxiter: u32) {
     }
 }
 
+/// Accept the originating transaction and commit any changes the hook made
 #[inline(always)]
 pub fn accept(msg: &[u8], error_code: i64) -> ! {
     unsafe {
@@ -17,6 +34,7 @@ pub fn accept(msg: &[u8], error_code: i64) -> ! {
     }
 }
 
+/// Reject the originating transaction and discard any changes the hook made
 #[inline(always)]
 pub fn rollback(msg: &[u8], error_code: i64) -> ! {
     unsafe {
@@ -25,16 +43,19 @@ pub fn rollback(msg: &[u8], error_code: i64) -> ! {
     }
 }
 
+/// Convert a 20 byte Account ID to an r-address
 #[inline(always)]
 pub fn util_raddr(raddr_out: &mut [u8], accid: &[u8]) -> Result<u64> {
     buf_write_read(raddr_out, accid, _c::util_raddr)
 }
 
+/// Convert an r-address into a 20 byte Account ID
 #[inline(always)]
 pub fn util_accid(accid_out: &mut [u8], raddr_in: &[u8]) -> Result<u64> {
     buf_write_read(accid_out, raddr_in, _c::util_accid)
 }
 
+/// Verify a cryptographic signature
 #[inline(always)]
 pub fn util_verify(payload: &[u8], signature: &[u8], publickey: &[u8]) -> bool {
     let res = buf_3_read(payload, signature, publickey, _c::util_verify);
@@ -46,6 +67,7 @@ pub fn util_verify(payload: &[u8], signature: &[u8], publickey: &[u8]) -> bool {
     }
 }
 
+/// Compute an sha512-half over some data
 #[inline(always)]
 pub fn util_sha512h(hash_out: &mut [u8], data_in: &[u8]) -> Result<u64> {
     buf_write_read(hash_out, data_in, _c::util_sha512h)
@@ -166,6 +188,7 @@ pub fn util_keylet(keylet: &mut [u8], keylet_type: KeyletType) -> Result<u64> {
     }
 }
 
+/// Index into a xrpld serialized object and return the location and length of a subfield
 #[inline(always)]
 pub fn sto_subfield(sto: &[u8], field_id: FieldId) -> Result<&[u8]> {
     let res = unsafe { _c::sto_subfield(sto.as_ptr() as u32, sto.len() as u32, field_id as _) };
@@ -178,6 +201,7 @@ pub fn sto_subfield(sto: &[u8], field_id: FieldId) -> Result<&[u8]> {
     Ok(&sto[range_from_location(location)])
 }
 
+/// Index into a xrpld serialized array and return the location and length of an index
 #[inline(always)]
 pub fn sto_subarray(sto: &[u8], array_id: u32) -> Result<&[u8]> {
     let res = unsafe { _c::sto_subarray(sto.as_ptr() as u32, sto.len() as u32, array_id) };
@@ -190,6 +214,7 @@ pub fn sto_subarray(sto: &[u8], array_id: u32) -> Result<&[u8]> {
     Ok(&sto[range_from_location(location)])
 }
 
+/// Emplace a field into an existing STObject at its canonical placement
 #[inline(always)]
 pub fn sto_emplace(
     sto_out: &mut [u8],
@@ -212,6 +237,7 @@ pub fn sto_emplace(
     result_u64(res)
 }
 
+/// Remove a field from an STObject
 #[inline(always)]
 pub fn sto_erase(sto_out: &mut [u8], sto_src: &[u8], field_id: FieldId) -> Result<u64> {
     let res = unsafe {
@@ -227,6 +253,7 @@ pub fn sto_erase(sto_out: &mut [u8], sto_src: &[u8], field_id: FieldId) -> Resul
     result_u64(res)
 }
 
+/// Validate an STObject
 #[inline(always)]
 pub fn sto_validate(sto: &[u8]) -> bool {
     let res = buf_read(sto, _c::sto_validate);
@@ -238,31 +265,37 @@ pub fn sto_validate(sto: &[u8]) -> bool {
     }
 }
 
+/// Get the burden of a hypothetically emitted transaction
 #[inline(always)]
 pub fn etxn_burden() -> i64 {
     unsafe { _c::etxn_burden() }
 }
 
+/// Produce an sfEmitDetails suitable for a soon-to-be emitted transaction
 #[inline(always)]
 pub fn etxn_details(emitdet: &mut [u8]) -> Result<u64> {
     buf_write(emitdet, _c::etxn_details)
 }
 
+/// Estimate the required fee for a txn to be emitted successfully
 #[inline(always)]
 pub fn etxn_fee_base(tx_byte_count: u32) -> Result<u64> {
     api_1arg_call(tx_byte_count, _c::etxn_fee_base)
 }
 
+/// Estimate the required fee for a txn to be emitted successfully
 #[inline(always)]
 pub fn etxn_reserve(count: u32) -> Result<u64> {
     api_1arg_call(count, _c::etxn_reserve)
 }
 
+/// Get the generation of a hypothetically emitted transaction
 #[inline(always)]
 pub fn etxn_generation() -> i64 {
     unsafe { _c::etxn_generation() }
 }
 
+/// Emit a new transaction from the hook
 #[inline(always)]
 pub fn emit(hash: &mut [u8], tx_buf: &[u8]) -> Result<u64> {
     buf_write_read(hash, tx_buf, _c::emit)
@@ -456,31 +489,37 @@ pub fn float_int(float: XFL, decimal_places: u32, absolute: bool) -> Result<u64>
     result_u64(res)
 }
 
+/// Retreive the 20 byte Account ID the Hook is executing on
 #[inline(always)]
 pub fn hook_account(accid: &mut [u8]) -> Result<u64> {
     buf_write(accid, _c::hook_account)
 }
 
+/// Retreive the 32 byte namespace biased SHA512H of the currently executing Hook
 #[inline(always)]
 pub fn hook_hash(hash: &mut [u8]) -> Result<u64> {
     buf_write(hash, _c::hook_hash)
 }
 
+/// Fetch the fee base of the current ledger
 #[inline(always)]
 pub fn fee_base() -> i64 {
     unsafe { _c::fee_base() }
 }
 
+/// Fetch the current ledger sequence number
 #[inline(always)]
 pub fn ledger_seq() -> i64 {
     unsafe { _c::ledger_seq() }
 }
 
+/// Retreive the 32 byte namespace biased SHA512H of the last closed ledger
 #[inline(always)]
 pub fn ledger_last_hash(hash: &mut [u8]) -> Result<u64> {
     buf_write(hash, _c::ledger_last_hash)
 }
 
+/// Generate a 32 byte nonce for use in an emitted transaction
 #[inline(always)]
 pub fn nonce(n: &mut [u8]) -> Result<u64> {
     buf_write(n, _c::nonce)
@@ -553,16 +592,19 @@ pub fn slot_float(slot_no: u32) -> Result<XFL> {
     result_xfl(res)
 }
 
+/// Retrieve the data pointed to by a Hook State key and write it to an output buffer
 #[inline(always)]
 pub fn state(data: &mut [u8], key: &[u8]) -> Result<u64> {
     buf_write_read(data, key, _c::state)
 }
 
+/// Set the Hook State for a given key and value
 #[inline(always)]
 pub fn state_set(data: &[u8], key: &[u8]) -> Result<u64> {
     buf_2read(data, key, _c::state_set)
 }
 
+/// Retrieve the data pointed to, on another account, by a Hook State key and write it to an output buffer
 #[inline(always)]
 pub fn state_foreign(data: &mut [u8], key: &[u8], accid: &[u8]) -> Result<u64> {
     let res = unsafe {
@@ -579,6 +621,7 @@ pub fn state_foreign(data: &mut [u8], key: &[u8], accid: &[u8]) -> Result<u64> {
     result_u64(res)
 }
 
+/// Write the contents of a buffer to the XRPLD trace log
 #[inline(always)]
 pub fn trace(msg: &[u8], data: &[u8], data_repr: DataRepr) -> Result<u64> {
     let res = unsafe {
@@ -594,13 +637,7 @@ pub fn trace(msg: &[u8], data: &[u8], data_repr: DataRepr) -> Result<u64> {
     result_u64(res)
 }
 
-#[inline(always)]
-pub fn trace_num(msg: &[u8], number: i64) -> Result<u64> {
-    let res = unsafe { _c::trace_num(msg.as_ptr() as u32, msg.len() as u32, number) };
-
-    result_u64(res)
-}
-
+/// Write the contents of a slot to the XRPLD trace log
 #[inline(always)]
 pub fn trace_slot(msg: &[u8], slot: u32) -> Result<u64> {
     let res = unsafe { _c::trace_slot(msg.as_ptr() as u32, msg.len() as u32, slot) };
@@ -608,6 +645,15 @@ pub fn trace_slot(msg: &[u8], slot: u32) -> Result<u64> {
     result_u64(res)
 }
 
+/// Write an integer to the XRPLD trace log
+#[inline(always)]
+pub fn trace_num(msg: &[u8], number: i64) -> Result<u64> {
+    let res = unsafe { _c::trace_num(msg.as_ptr() as u32, msg.len() as u32, number) };
+
+    result_u64(res)
+}
+
+/// Write a XFL float to the XRPLD trace log
 #[inline(always)]
 pub fn trace_float(msg: &[u8], float: XFL) -> Result<u64> {
     let res = unsafe { _c::trace_float(msg.as_ptr() as u32, msg.len() as u32, float.0) };
@@ -615,36 +661,43 @@ pub fn trace_float(msg: &[u8], float: XFL) -> Result<u64> {
     result_u64(res)
 }
 
+/// Get the burden of the originating transaction
 #[inline(always)]
 pub fn otxn_burden() -> i64 {
     unsafe { _c::otxn_burden() }
 }
 
+/// Serialize and output a field from the originating transaction
 #[inline(always)]
 pub fn otxn_field(accid: &mut [u8], field_id: FieldId) -> Result<u64> {
     buf_write_1arg(accid, field_id as _, _c::otxn_field)
 }
 
+/// Output a field from the originating transaction as a human readable string
 #[inline(always)]
 pub fn otxn_field_txt(acctxt: &mut [u8], field_id: FieldId) -> Result<u64> {
     buf_write_1arg(acctxt, field_id as _, _c::otxn_field_txt)
 }
 
+/// Get the generation of the originating transaction
 #[inline(always)]
 pub fn otxn_generation() -> i64 {
     unsafe { _c::otxn_generation() }
 }
 
+/// Output the canonical hash of the originating transaction
 #[inline(always)]
 pub fn otxn_id(hash: &mut [u8]) -> Result<u64> {
     buf_write(hash, _c::otxn_id)
 }
 
+/// Get the Transaction Type of the originating transaction
 #[inline(always)]
 pub fn otxn_type() -> i64 {
     unsafe { _c::otxn_type() }
 }
 
+/// Load the originating transaction into a slot
 #[inline(always)]
 pub fn otxn_slot(slot_no: u32) -> Result<u64> {
     api_1arg_call(slot_no, _c::otxn_slot)
