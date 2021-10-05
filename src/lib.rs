@@ -9,7 +9,7 @@
     warnings,
     clippy::all,
     missing_copy_implementations,
-    //todo missing_docs,
+    missing_docs,
     rustdoc::missing_crate_level_docs,
     rustdoc::missing_doc_code_examples,
     non_ascii_idents,
@@ -23,9 +23,6 @@
 /// Use very carefully if at all necessary.
 pub mod _c;
 
-/// Error handling
-pub mod error;
-
 /// XRPL Hooks API
 pub mod api;
 
@@ -36,7 +33,7 @@ pub mod helpers;
 pub mod macros;
 
 // Prelude
-pub use {api::*, error::*, helpers::*, macros::*};
+pub use {api::*, helpers::*, macros::*};
 
 #[cfg(not(test))]
 use core::panic::PanicInfo;
