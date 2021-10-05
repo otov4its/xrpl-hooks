@@ -6,7 +6,8 @@
 * Added slot API
 * Added util_keylet() API
 * Added float API
-* Added dos strings
+* Added some docs
+* Changed modules layout
 
 ## 0.1.0 (2021-10-03)
 
