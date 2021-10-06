@@ -6,34 +6,29 @@
 
 This crate allows you to write XRPL hooks in Rust.
 
-Before you begin, it is highly recommended that you read 
-the [official docs](https://xrpl-hooks.readme.io/) carefully.
+For a quick start and to view examples, see [xrpl-hook-template](https://github.com/otov4its/xrpl-hook-template/) repo.
 
 
-## XRPL Hackathon 2021
+# XRPL Hackathon 2021
 
-The lib was written as part of [XRPL Hackathon 2021](https://xrpl-hackathon-2021.devpost.com/)
+This is part of the [XRPL Hooks Rust](https://devpost.com/software/xrpl-hooks-rust) project developed for [XRPL Hackathon 2021](https://xrpl-hackathon-2021.devpost.com/).
 
 ![](XRPL2021HACK.jpg)
 
-## Examples
-
-For a quick start and to view examples, use https://github.com/otov4its/xrpl-hook-template/
-
-## Documentation
+# Documentation
 
 [Documentation](https://docs.rs/xrpl-hooks/)
 
-## Release history
+# Release history
 
 See [HISTORY.md](HISTORY.md)
 
-## Tests
+# Tests
 
 ```bash
 $ cargo test
 ```
 
-## License
+# License
 
 [LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT
