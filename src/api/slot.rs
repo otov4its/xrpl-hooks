@@ -58,10 +58,12 @@ pub fn slot_type(slot_no: u32, flags: SlotTypeFlags) -> Result<FieldOrXrpAmount>
             let res = unsafe { _c::slot_type(slot_no, 0) };
 
             match res {
-                res if res >=0 => Ok(FieldOrXrpAmount::Field(unsafe { core::mem::transmute(res as u32) })),
-                _ => Err(Error::from_code(res as _))
+                res if res >= 0 => Ok(FieldOrXrpAmount::Field(unsafe {
+                    core::mem::transmute(res as u32)
+                })),
+                _ => Err(Error::from_code(res as _)),
             }
-        },
+        }
 
         SlotTypeFlags::XrpAmount => {
             let res = unsafe { _c::slot_type(slot_no, 1) };
@@ -69,7 +71,7 @@ pub fn slot_type(slot_no: u32, flags: SlotTypeFlags) -> Result<FieldOrXrpAmount>
             match res {
                 1 => Ok(FieldOrXrpAmount::XrpAmount),
                 res if res >= 0 => Ok(FieldOrXrpAmount::NonXrpAmount),
-                _ => Err(Error::from_code(res as _))
+                _ => Err(Error::from_code(res as _)),
             }
         }
     }

@@ -22,7 +22,7 @@
     unreachable_pub
 )]
 #![doc(test(attr(deny(warnings))))]
-#![doc(html_root_url = "https://docs.rs/xrpl-hooks/0.2.0")]
+#![doc(html_root_url = "https://docs.rs/xrpl-hooks/0.3.0")]
 
 mod macros;
 

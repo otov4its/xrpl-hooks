@@ -162,9 +162,8 @@ pub enum KeyletType<'a> {
     Emitted(&'a [u8]),
 }
 
-
 /// Field or amount type
-/// 
+///
 /// Used as return of [slot_type] function
 #[derive(Clone, Copy)]
 pub enum FieldOrXrpAmount {
@@ -173,7 +172,7 @@ pub enum FieldOrXrpAmount {
     /// STI_AMOUNT type contains a native (XRP) amount
     XrpAmount,
     /// STI_AMOUNT type contains non-XRP amount
-    NonXrpAmount
+    NonXrpAmount,
 }
 
 /// Flags for [slot_type]
@@ -446,7 +445,7 @@ impl<T> Result<T> {
 }
 
 /// Possible errors returned by Hook APIs.
-/// 
+///
 /// Errors are global across all Hook APIs.
 #[derive(Clone, Copy)]
 #[repr(i32)]
@@ -457,7 +456,7 @@ pub enum Error {
     /// These should be reported with an issue.
     InternalError = _c::INTERNAL_ERROR,
     /// Attempted to set a parameter or value larger than the allowed space .
-    TooBig = _c::TOO_BIG,	
+    TooBig = _c::TOO_BIG,
     /// The API was unable to produce output to the write_ptr because the specified write_len was too small
     TooSmall = _c::TOO_SMALL,
     /// The requested object or item wasn't found
@@ -484,7 +483,7 @@ pub enum Error {
     /// A Hook must declare ahead of time how many TXN it intends to emit().
     /// If it emits fewer than this many, this is allowed.
     /// If it emits more than this many this error is returned.
-    TooManyEmittedTxn = _c::TOO_MANY_EMITTED_TXN,	
+    TooManyEmittedTxn = _c::TOO_MANY_EMITTED_TXN,
     /// While Hooks is/was in development an API may return this if some or all of that API is planned but not yet implemented.
     NotImplemented = _c::NOT_IMPLEMENTED,
     /// An API which accepts a 20 byte Account ID may return this if, in its opinion, the Account ID was not valid for any reason.
