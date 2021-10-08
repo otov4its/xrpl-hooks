@@ -50,13 +50,29 @@ pub fn slot_subfield(parent_slot: u32, field_id: FieldId, new_slot: u32) -> Resu
     api_3arg_call(parent_slot, field_id as _, new_slot, _c::slot_subfield)
 }
 
-//todo: tricky args and return - think about
 /// Retrieve the field code of an object in a slot and, optionally, some other information
 #[inline(always)]
-pub fn slot_type(slot_no: u32, flags: u32) -> Result<u64> {
-    let res = unsafe { _c::slot_type(slot_no, flags) };
+pub fn slot_type(slot_no: u32, flags: SlotTypeFlags) -> Result<FieldOrXrpAmount> {
+    match flags {
+        SlotTypeFlags::Field => {
+            let res = unsafe { _c::slot_type(slot_no, 0) };
 
-    result_u64(res)
+            match res {
+                res if res >=0 => Ok(FieldOrXrpAmount::Field(unsafe { core::mem::transmute(res as u32) })),
+                _ => Err(res)
+            }
+        },
+
+        SlotTypeFlags::XrpAmount => {
+            let res = unsafe { _c::slot_type(slot_no, 1) };
+
+            match res {
+                1 => Ok(FieldOrXrpAmount::XrpAmount),
+                res if res >= 0 => Ok(FieldOrXrpAmount::NonXrpAmount),
+                _ => Err(res)
+            }
+        }
+    }
 }
 
 /// Parse the STI_AMOUNT in the specified slot and return it as an XFL enclosed number

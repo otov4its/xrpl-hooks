@@ -2,7 +2,8 @@
 
 ## Unreleased
 
-* nothing
+* Changed FieldId enum repr to `#[repr(u32)]`
+* Improved `slot_type` API
 
 ## 0.2.0 (2021-10-05)
 
