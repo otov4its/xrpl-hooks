@@ -71,8 +71,9 @@ pub type CurrencyCode = Buffer<CURRENCY_CODE_SIZE>;
 /// Transaction type
 #[allow(missing_docs)]
 #[derive(Clone, Copy)]
+#[repr(u32)]
 pub enum TxnType {
-    Payment = _c::ttPAYMENT as isize,
+    Payment = _c::ttPAYMENT,
     EscrowCreate = 1,
     EscrowFinish = 2,
     AccountSet = 3,
@@ -101,35 +102,37 @@ pub enum TxnType {
 /// Account type
 #[allow(missing_docs)]
 #[derive(Clone, Copy)]
+#[repr(u32)]
 pub enum AccountType {
-    Account = _c::atACCOUNT as isize,
-    Owner = _c::atOWNER as isize,
-    Destination = _c::atDESTINATION as isize,
-    Issuer = _c::atISSUER as isize,
-    Authorize = _c::atAUTHORIZE as isize,
-    Unauthorize = _c::atUNAUTHORIZE as isize,
-    Target = _c::atTARGET as isize,
-    RegularKey = _c::atREGULARKEY as isize,
-    PseudoCallback = _c::atPSEUDOCALLBACK as isize,
+    Account = _c::atACCOUNT,
+    Owner = _c::atOWNER,
+    Destination = _c::atDESTINATION,
+    Issuer = _c::atISSUER,
+    Authorize = _c::atAUTHORIZE,
+    Unauthorize = _c::atUNAUTHORIZE,
+    Target = _c::atTARGET,
+    RegularKey = _c::atREGULARKEY,
+    PseudoCallback = _c::atPSEUDOCALLBACK,
 }
 
 /// Amount type
 #[allow(missing_docs)]
 #[derive(Clone, Copy)]
+#[repr(u32)]
 pub enum AmountType {
-    Amount = _c::amAMOUNT as isize,
-    Balance = _c::amBALANCE as isize,
-    LimitAmount = _c::amLIMITAMOUNT as isize,
-    TakerPays = _c::amTAKERPAYS as isize,
-    TakerGets = _c::amTAKERGETS as isize,
-    LowLimit = _c::amLOWLIMIT as isize,
-    HighLimit = _c::amHIGHLIMIT as isize,
-    Fee = _c::amFEE as isize,
-    SendMax = _c::amSENDMAX as isize,
-    DeliverMin = _c::amDELIVERMIN as isize,
-    MinimumOffer = _c::amMINIMUMOFFER as isize,
-    RippleEscrow = _c::amRIPPLEESCROW as isize,
-    DeliveredAmount = _c::amDELIVEREDAMOUNT as isize,
+    Amount = _c::amAMOUNT,
+    Balance = _c::amBALANCE,
+    LimitAmount = _c::amLIMITAMOUNT,
+    TakerPays = _c::amTAKERPAYS,
+    TakerGets = _c::amTAKERGETS,
+    LowLimit = _c::amLOWLIMIT,
+    HighLimit = _c::amHIGHLIMIT,
+    Fee = _c::amFEE,
+    SendMax = _c::amSENDMAX,
+    DeliverMin = _c::amDELIVERMIN,
+    MinimumOffer = _c::amMINIMUMOFFER,
+    RippleEscrow = _c::amRIPPLEESCROW,
+    DeliveredAmount = _c::amDELIVEREDAMOUNT,
 }
 
 /// Keylet type
@@ -181,8 +184,6 @@ pub enum SlotTypeFlags {
     /// STI_AMOUNT type contains a native (XRP) amount
     XrpAmount,
 }
-
-//todo: enums #[repr(u32)]
 
 /// Field type
 #[allow(missing_docs)]

@@ -7,6 +7,7 @@
 * Improved `slot_type` API
 * Added errors enum
 * Changed Result type with new errors enum
+* Changed enum representations
 
 ## 0.2.0 (2021-10-05)
 
