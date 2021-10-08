@@ -19,7 +19,7 @@ pub fn is_buffer_equal<const GUARD_ID: u32>(buf_1: &[u8], buf_2: &[u8]) -> bool 
     // guarded loop
     let mut i = 0;
     while {
-        _g(GUARD_ID, buf1_len as u32);
+        _g(GUARD_ID, buf1_len as u32 + 1);
         i < buf1_len
     } {
         if buf_1[i] != buf_2[i] {
@@ -42,7 +42,7 @@ pub fn buffer_zeroize<const GUARD_ID: u32>(buf: &mut [u8]) {
     // guarded loop
     let mut i = 0;
     while {
-        _g(GUARD_ID, buf_len as _);
+        _g(GUARD_ID, buf_len as u32 + 1);
         i < buf_len
     } {
         buf[0] = 0;

@@ -11,7 +11,7 @@ use crate::_c;
 /// ```no_run
 /// let mut i = 0;
 /// while {
-///     _g(UNIQUE_GUARD_ID, MAXITER);
+///     _g(UNIQUE_GUARD_ID, MAXITER + 1);
 ///     i < MAXITER
 /// } {
 ///     // your code

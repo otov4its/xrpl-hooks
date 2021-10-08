@@ -4,6 +4,10 @@
 
 * Nothing
 
+## 0.3.1 (2021-10-08)
+
+* Fixed guard violation in some cases
+
 ## 0.3.0 (2021-10-08)
 
 * Changed FieldId enum repr to `#[repr(u32)]`
