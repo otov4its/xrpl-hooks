@@ -183,7 +183,6 @@ pub enum SlotTypeFlags {
 }
 
 //todo: enums #[repr(u32)]
-//todo: errors
 
 /// Field type
 #[allow(missing_docs)]
@@ -375,7 +374,7 @@ pub enum Result<T> {
     /// Contains the success value
     Ok(T),
     /// Contains the error value
-    Err(i64),
+    Err(Error),
 }
 
 pub use self::Result::*;
@@ -390,7 +389,7 @@ impl<T> Result<T> {
     #[inline(always)]
     pub fn expect(self, msg: &[u8]) -> T {
         match self {
-            Err(e) => rollback(msg, e),
+            Err(e) => rollback(msg, e.code() as _),
             Ok(val) => val,
         }
     }
@@ -408,7 +407,7 @@ impl<T> Result<T> {
     #[inline(always)]
     pub fn unwrap(self) -> T {
         match self {
-            Err(e) => rollback(b"error", e),
+            Err(e) => rollback(b"error", e.code() as _),
             Ok(val) => val,
         }
     }
@@ -442,6 +441,103 @@ impl<T> Result<T> {
     #[inline(always)]
     pub const fn is_err(&self) -> bool {
         !self.is_ok()
+    }
+}
+
+/// Possible errors returned by Hook APIs.
+/// 
+/// Errors are global across all Hook APIs.
+#[derive(Clone, Copy)]
+#[repr(i32)]
+pub enum Error {
+    /// A pointer or buffer length provided as a parameter described memory outside of the Hook's allowed memory region.
+    OutOfBounds = _c::OUT_OF_BOUNDS,
+    /// Reserved for internal invariant trips, generally unrelated to inputs.
+    /// These should be reported with an issue.
+    InternalError = _c::INTERNAL_ERROR,
+    /// Attempted to set a parameter or value larger than the allowed space .
+    TooBig = _c::TOO_BIG,	
+    /// The API was unable to produce output to the write_ptr because the specified write_len was too small
+    TooSmall = _c::TOO_SMALL,
+    /// The requested object or item wasn't found
+    DoesntExist = _c::DOESNT_EXIST,
+    /// The Hook attempted to allocate an item into a slot, but there were no slots free.
+    /// To avoid ensure re-use of existing slots. The maximum number of slots is 255.
+    NoFreeSlots = _c::NO_FREE_SLOTS,
+    /// One or more of the parameters to the API were invalid according to the individual API's specification.
+    InvalidArgument = _c::INVALID_ARGUMENT,
+    /// Some APIs allow for a once-per-execution parameter to be set.
+    /// A second attempt to set a once-per-execution parameter results in this error.
+    AlreadySet = _c::ALREADY_SET,
+    /// An API required the Hook to do something before the API is allowed to be called.
+    /// Check the API's documentation.
+    PrerequisiteNotMet = _c::PREREQUISITE_NOT_MET,
+    /// During fee calculation if an absurdly large fee is calculated this error is returned.
+    FeeTooLarge = _c::FEE_TOO_LARGE,
+    /// An attempt to emit() a TXN was unsccessful for any of a number of reasons.
+    /// Check the trace log of the rippled to which you are submitting the originating TXN.
+    EmissionFailure = _c::EMISSION_FAILURE,
+    /// A Hook may only use up to 256 calls to nonce() per execution.
+    /// Further calls result in this error code.
+    TooManyNonces = _c::TOO_MANY_NONCES,
+    /// A Hook must declare ahead of time how many TXN it intends to emit().
+    /// If it emits fewer than this many, this is allowed.
+    /// If it emits more than this many this error is returned.
+    TooManyEmittedTxn = _c::TOO_MANY_EMITTED_TXN,	
+    /// While Hooks is/was in development an API may return this if some or all of that API is planned but not yet implemented.
+    NotImplemented = _c::NOT_IMPLEMENTED,
+    /// An API which accepts a 20 byte Account ID may return this if, in its opinion, the Account ID was not valid for any reason.
+    InvalidAccount = _c::INVALID_ACCOUNT,
+    /// All loops inside a Hook must declare at the top of the loop, as the first non trivial instruction,
+    /// before any branch instruction, the promised maximum number of iterations of the loop.
+    /// If this promise is violated the hook terminates immediately with this error code.
+    GuardViolation = _c::GUARD_VIOLATION,
+    /// The requested serialized field could not be found in the specified object.
+    InvalidField = _c::INVALID_FIELD,
+    /// While parsing serialized content an error was encountered (typically indicating an invalidly serialized object).
+    ParseError = _c::PARSE_ERROR,
+    /// Used internally to communicate a rollback event.
+    RcRollback = _c::RC_ROLLBACK,
+    /// Used internally to communicate an accept event.
+    RcAccept = _c::RC_ACCEPT,
+    /// Specified keylet could not be found, or keylet is invalid
+    NoSuchKeylet = _c::NO_SUCH_KEYLET,
+    /// API was asked to assume object under analysis is an STArray but it was not.
+    NotAnArray = -22,
+    /// API was asked to assume object under analysis is an STObject but it was not.
+    NotAnObject = -23,
+    /// A floating point operation resulted in Not-A-Number or API call attempted to specify an XFL floating point number outside of the expressible range of XFL.
+    InvalidFloat = _c::INVALID_FLOAT,
+    /// API call would result in a division by zero, so API ended early.
+    DivisionByZero = -25,
+    /// When attempting to create an XFL the mantissa must be 16 decimal digits.
+    ManitssaOversized = -26,
+    /// When attempting to create an XFL the mantissa must be 16 decimal digits.
+    MantissaUndersized = -27,
+    /// When attempting to create an XFL the exponent must not exceed 80.
+    ExponentOversized = -28,
+    /// When attempting to create an XFL the exponent must not be less than -96.
+    ExponentUndersized = -29,
+    /// A floating point operation done on an XFL resulted in a value larger than XFL format is able to represent.
+    Overflow = -30,
+    /// An API assumed an STAmount was an IOU when in fact it was XRP.
+    NotIouAmount = -31,
+    /// An API assumed an STObject was an STAmount when in fact it was not.
+    NotAnAmount = -32,
+    /// An API would have returned a negative integer except that negative integers are reserved for error codes (i.e. what you are reading.)
+    CantReturnNegative = -33,
+}
+
+impl Error {
+    #[inline(always)]
+    fn from_code(code: i32) -> Self {
+        unsafe { core::mem::transmute(code) }
+    }
+
+    /// Error code
+    #[inline(always)]
+    pub fn code(self) -> i32 {
+        self as _
     }
 }
 
@@ -540,14 +636,6 @@ fn buf_3_read(
     };
 
     result_u64(res)
-}
-
-#[inline(always)]
-fn result_u64(res: i64) -> Result<u64> {
-    match res {
-        res if res >= 0 => Ok(res as _),
-        _ => Err(res),
-    }
 }
 
 #[inline(always)]
@@ -673,9 +761,17 @@ fn buf_2_read_and_zeroes(
 }
 
 #[inline(always)]
+fn result_u64(res: i64) -> Result<u64> {
+    match res {
+        res if res >= 0 => Ok(res as _),
+        _ => Err(Error::from_code(res as _)),
+    }
+}
+
+#[inline(always)]
 fn result_xfl(res: i64) -> Result<XFL> {
     match res {
         res if res >= 0 => Ok(XFL(res)),
-        _ => Err(res),
+        _ => Err(Error::from_code(res as _)),
     }
 }

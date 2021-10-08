@@ -70,7 +70,7 @@ pub fn float_compare(float1: XFL, float2: XFL, mode: XFLCompareMode) -> Result<b
     match res {
         0 => Ok(false),
         1 => Ok(true),
-        _ => Err(res),
+        _ => Err(Error::from_code(res as _)),
     }
 }
 
@@ -155,7 +155,7 @@ pub fn float_sign(float: XFL) -> Result<bool> {
     match unsafe { _c::float_sign(float.0) } {
         0 => Ok(false),
         1 => Ok(true),
-        res => Err(res),
+        res => Err(Error::from_code(res as _)),
     }
 }
 

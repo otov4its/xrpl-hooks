@@ -5,6 +5,8 @@
 !!! VERSION to 0.3.0
 * Changed FieldId enum repr to `#[repr(u32)]`
 * Improved `slot_type` API
+* Added errors enum
+* Changed Result type with new errors enum
 
 ## 0.2.0 (2021-10-05)
 

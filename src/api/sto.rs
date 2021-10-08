@@ -7,7 +7,7 @@ pub fn sto_subfield(sto: &[u8], field_id: FieldId) -> Result<&[u8]> {
 
     let location = match res {
         res if res >= 0 => res,
-        res => return Err(res),
+        res => return Err(Error::from_code(res as _)),
     };
 
     Ok(&sto[range_from_location(location)])
@@ -20,7 +20,7 @@ pub fn sto_subarray(sto: &[u8], array_id: u32) -> Result<&[u8]> {
 
     let location = match res {
         res if res >= 0 => res,
-        res => return Err(res),
+        res => return Err(Error::from_code(res as _)),
     };
 
     Ok(&sto[range_from_location(location)])

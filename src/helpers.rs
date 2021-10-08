@@ -96,7 +96,7 @@ pub fn is_txn_ingoing<const GUARD_ID: u32>(
 #[inline(always)]
 pub const fn amount_to_drops(amount_buf: &Amount) -> Result<u64> {
     if (amount_buf[0] >> 7) == 1 {
-        return Err(-2);
+        return Err(Error::InternalError);
     }
 
     Ok((((amount_buf[0] as u64) & 0xb00111111) << 56)
